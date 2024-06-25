@@ -8,13 +8,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from deepriemanniannet.pl_utils import LitProgressBar
-from deepriemanniannet.pl_utils import SPD_pl
-from deepriemanniannet.pl_utils import get_train_test_loaders
 from joblib import Parallel
 from joblib import delayed
 from lightning import Trainer
 from lightning.pytorch.callbacks import LearningRateFinder
+from pl_utils import GreenRegressorLM
+from pl_utils import get_train_test_loaders
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import KFold
 from torch.nn import Module
@@ -30,12 +29,11 @@ def run_one_fold_pl(model: torch.nn.Module,
                     n_epochs: int = 25,
                     ckpt_path: str = "checkpoints",
                     callbacks=[
-                        LitProgressBar(),
                         LearningRateFinder(min_lr=1e-4,
                                            max_lr=1e-2,
                                            num_training_steps=20),
                     ],
-                    pl_module=SPD_pl,
+                    pl_module=GreenRegressorLM,
                     save_preds=False,
                     batch_size=128,
                     num_workers=8,
@@ -120,7 +118,6 @@ def pl_crossval(
         n_epochs: int = 25,
         ckpt_prefix: str = 'checkpoints',
         callbacks=[
-            LitProgressBar(),
             LearningRateFinder(min_lr=1e-4,
                                max_lr=1e-2,
                                num_training_steps=20),
@@ -128,7 +125,7 @@ def pl_crossval(
         random_state: int = 0,
         train_splits: np.ndarray = None,
         test_splits: np.ndarray = None,
-        pl_module=SPD_pl,
+        pl_module=GreenRegressorLM,
         save_preds=False,
         batch_size=128,
         num_workers=8,
@@ -165,7 +162,7 @@ def pl_crossval(
     test_splits : np.ndarray, optional
         Predefined test splits, by default None
     pl_module : Module, optional
-        Lightning module, by default SPD_pl
+        Lightning module, by default GreenRegressorLM
     save_preds : bool, optional
         Whether to save the predictions of the model, by default False
     batch_size : int, optional

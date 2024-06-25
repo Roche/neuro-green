@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import geotorch
 import numpy as np
 import pandas as pd
@@ -8,6 +10,8 @@ from sklearn.metrics import r2_score
 from torch import Tensor
 from torch import nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from torch.utils.data import Subset
 
 from green.spd_layers import BiMap
 from green.spd_layers import LogMap
@@ -18,6 +22,44 @@ from green.wavelet_layers import CrossCovariance
 from green.wavelet_layers import CrossPW_PLV
 from green.wavelet_layers import RealCovariance
 from green.wavelet_layers import WaveletConv
+
+
+def get_train_test_loaders(dataset,
+                           train_indices,
+                           test_indices,
+                           batch_size=128,
+                           num_workers=0,
+                           shuffle=True,
+                           pin_memory=True,
+                           final_val=False
+                           ):
+    train_set = Subset(dataset, train_indices)
+    test_set = Subset(dataset, test_indices)
+    train_loader = DataLoader(
+        train_set,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        pin_memory=pin_memory,
+        num_workers=num_workers
+    )
+    test_loader = DataLoader(
+        test_set,
+        batch_size=batch_size,
+        pin_memory=pin_memory,
+        num_workers=min(int(len(test_set) // batch_size), num_workers)
+    )
+    if final_val:
+        test_set_final = deepcopy(test_set)
+        test_set_final.dataset.padding = None
+        test_set_final.dataset.n_epochs = 150
+        test_loader_final = DataLoader(
+            test_set_final,
+            batch_size=1,
+            num_workers=num_workers * 2
+        )
+        return train_loader, test_loader, test_loader_final
+
+    return train_loader, test_loader
 
 
 class GreenRegressorLM(LightningModule):
