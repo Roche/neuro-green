@@ -645,3 +645,169 @@ def get_green(
         use_age=use_age
     )
     return model
+
+
+class GreenG2(nn.Module):
+    def __init__(self,
+                 spd_layers: nn.Module,
+                 head: nn.Module,
+                 proj: nn.Module,
+                 ):
+        """
+        Version of the Green that uses pre-computed covariance matrices.
+
+
+        Parameters:
+        -----------
+        spd_layers : nn.Module
+            The SPD layers that operate on the SPD features.
+        head : nn.Module
+            The head layer that acts in the Euclidean space.
+        proj : nn.Module
+            The projection layer that projects the SPD features to the
+            Euclidean
+            space.
+        """
+        super(GreenG2, self).__init__()
+        self.spd_layers = spd_layers
+        self.proj = proj
+        self.head = head
+
+    def forward(self, X: Tensor, ):
+        """
+        Parameters
+        ----------
+        X : Tensor
+            N x P x T
+        """
+        X_hat = self.spd_layers(X)
+        X_hat = self.proj(X_hat)
+        X_hat = vectorize_upper(X_hat)
+        X_hat = torch.flatten(X_hat, start_dim=1)
+        X_hat = self.head(X_hat)
+        return X_hat
+
+
+def get_green_g2(
+    n_freqs: int = 15,
+    shrinkage_init: float = -3.,
+    logref: str = 'logeuclid',
+    dropout: float = .333,
+    n_ch: int = 21,
+    hidden_dim: int = 32,
+    dtype: torch.dtype = torch.float32,
+    bi_out: int = None,
+    out_dim: int = 1,
+    use_age: bool = False,
+    orth_weights=True
+):
+    """
+    Helper function to get a Green model.
+
+    Parameters
+    ----------
+    shrinkage_init : float, optional
+        Initial shrinkage value before applying sigmoid funcion, by default -3.
+    logref : str, optional
+        Reference matrix used for LogEig layer, by default 'logeuclid'
+    dropout : float, optional
+        Dropout rate for FC layers, by default .333
+    n_ch : int, optional
+        Number of channels, by default 21
+    hidden_dim : int, optional
+        Dimension of the hidden layer, if None no hidden layer, by default 32
+    dtype : torch.dtype, optional
+        Data type of the tensors, by default torch.float32
+    bi_out : int, optional
+        Dimension of the output layer after BiMap, by default None
+    out_dim : int, optional
+        Dimension of the output layer, by default 1
+    use_age : bool, optional
+        Whether to include age in the model, by default False
+
+    Returns
+    -------
+    Green
+        The Green model
+    """
+    n_compo = n_ch
+    # SPD layers
+    if shrinkage_init is None:
+        spd_layers_list = [nn.Identity()]
+    else:
+        spd_layers_list = [Shrinkage(n_freqs=n_freqs,
+                                     size=n_compo,
+                                     init_shrinkage=shrinkage_init,
+                                     learnable=True
+                                     )]
+    if bi_out is not None:
+        for bo in bi_out:
+            bimap = BiMap(d_in=n_compo,
+                          d_out=bo,
+                          n_freqs=n_freqs)
+            if orth_weights:
+                geotorch.orthogonal(bimap, 'weight')
+            spd_layers_list.append(bimap)
+
+            n_compo = bo
+
+        if n_freqs is None:
+            feat_dim = int(n_compo * (n_compo + 1) / 2)
+        else:
+            feat_dim = int(n_freqs * n_compo * (n_compo + 1) / 2)
+
+    if use_age:
+        feat_dim += 1
+    spd_layers = nn.Sequential(*spd_layers_list)
+
+    # Projection to tangent space
+    proj = LogMap(size=n_compo,
+                  n_freqs=n_freqs,
+                  ref=logref,
+                  momentum=0.9,
+                  reg=1e-4)
+
+    # Head
+    if hidden_dim is None:
+        head = torch.nn.Sequential(*[
+            torch.nn.BatchNorm1d(feat_dim,
+                                 dtype=dtype),
+            torch.nn.Dropout(
+                p=dropout) if dropout is not None else nn.Identity(),
+            torch.nn.Linear(feat_dim,
+                            out_dim,
+                            dtype=dtype),
+        ])
+    else:
+        # add multiple FC layers
+        sequential_list = []
+        for hd in hidden_dim:
+            sequential_list.extend([
+                torch.nn.BatchNorm1d(feat_dim,
+                                     dtype=dtype),
+                torch.nn.Dropout(
+                    p=dropout) if dropout is not None else nn.Identity(),
+                torch.nn.Linear(feat_dim,
+                                hd,
+                                dtype=dtype),
+                torch.nn.GELU()
+            ])
+            feat_dim = hd
+        sequential_list.extend([
+            torch.nn.BatchNorm1d(feat_dim,
+                                 dtype=dtype),
+            torch.nn.Dropout(
+                p=dropout) if dropout is not None else nn.Identity(),
+            torch.nn.Linear(feat_dim,
+                            out_dim,
+                            dtype=dtype)
+        ])
+        head = torch.nn.Sequential(*sequential_list)
+
+    # Gather everything
+    model = GreenG2(
+        spd_layers=spd_layers,
+        head=head,
+        proj=proj,
+    )
+    return model
