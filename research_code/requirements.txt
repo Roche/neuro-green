@@ -1,4 +1,0 @@
-lightning
-scikit-learn
-pandas
-pytest
