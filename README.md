@@ -1,8 +1,8 @@
-
 # GREEN architecture
+![CI](https://github.com/Roche/neuro-green/actions/workflows/lint_and_test.yaml/badge.svg)
+---
 ![alt text](assets/concept_figure.png)
 
-![CI](https://github.com/Roche/neuro-green/blob/main/.github/workflows/lint_and_test.yaml/badge.svg)
 
 ## Getting started 
 
