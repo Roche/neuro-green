@@ -1,7 +1,0 @@
-torch
-geotorch
-mne
-lightning
-scikit-learn
-pandas
-pytest

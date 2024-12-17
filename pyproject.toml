@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "green"
+version = "0.1"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.6"
+
+dependencies = [
+  "torch>=1.9",
+  "geotorch==0.3.0",
+  "mne==1.8.0",
+  "lightning==2.4.0",
+  "scikit-learn",
+  "pandas"
+]
+authors = [
+  {name = "Joseph Paillard", email = "joseph.paillard@roche.com"},
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest"
+]
