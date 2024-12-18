@@ -53,7 +53,7 @@ green_model = get_green(
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 EarlyStopping(monitor="valid_loss", patience=10, load_best=True)
-clf = EEGClassifier(
+clf = EEGRegressor(
 	module=green_model,
 	criterion=torch.nn.CrossEntropyLoss,
 	optimizer=torch.optim.AdamW,
