@@ -40,7 +40,7 @@ mne
 
 ## Examples
 
-Examples illustrating how to train the presented model can be found in the `green/research_code` folder. The notebook `example.ipynb` shows how to train the model on raw EEG data. And the notebook `example_wo_wav.ipynb` shows how to train a submodel that uses covariance matrices as input. 
+Examples illustrating how to train the presented model can be found in the [`green/research_code`](https://github.com/Roche/neuro-green/tree/main/green/research_code) folder. The notebook [`example.ipynb`](https://github.com/Roche/neuro-green/blob/main/green/research_code/example.ipynb) shows how to train the model on raw EEG data. And the notebook [`example_wo_wav.ipynb`](https://github.com/Roche/neuro-green/blob/main/green/research_code/example_wo_wav.ipynb) shows how to train a submodel that uses covariance matrices as input. 
 
 In addition, being pure PyTorch, the GREEN model can easily be integrated to [`braindecode`](https://braindecode.org/stable/index.html) routines. 
 
@@ -85,3 +85,7 @@ When using our code, please cite the reference article:
 	journal = {bioRxiv}
 }
 ```
+
+## Contributing
+
+We currently do not accept contributions.
