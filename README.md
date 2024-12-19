@@ -1,27 +1,36 @@
-# GREEN architecture
+# GREEN architecture (Gabor Riemann EEGNet)
 ![CI](https://github.com/Roche/neuro-green/actions/workflows/lint_and_test.yaml/badge.svg)
 ---
 
 ## About the architecture
 The model is a deep learning architecture designed for EEG data that combines wavelet transforms and Riemannian geometry. The model is composed of the following layers:
 It is based on the following layers:
- - Convolution: Uses complex-valued Gabor wavelets with parameters (frequency and standard deviation) that are learned during training. 
+
+ - Convolution: Uses complex-valued Gabor wavelets with parameters that are learned during training. 
+
  - Pooling: Derives features from the wavelet-transformed signal, such as covariance matrices.
+
  - Shrinkage layer: applies [shrinkage](https://scikit-learn.org/1.5/modules/covariance.html#basic-shrinkage) to the covariance matrices.
+
  - Riemannian Layers: Applies transformations to the matrices, leveraging the geometry of the Symmetric Positive Definite (SPD) manifold.
+
  - Fully Connected Layers: Standard fully connected layers for final processing.
 
 ![alt text](assets/concept_figure.png)
 
 
-## Getting started 
+## Getting started
+Clone the repository and install locally.
 
 ```
 pip install -e .
 ```
 
 ## Dependencies 
-``` 
+
+You will need the following dependencies to get most out of GREEN.
+
+```
 scikit-learn
 torch
 geotorch
@@ -30,6 +39,7 @@ mne
 ```
 
 ## Examples
+
 Examples illustrating how to train the presented model can be found in the `green/research_code` folder. The notebook `example.ipynb` shows how to train the model on raw EEG data. And the notebook `example_wo_wav.ipynb` shows how to train a submodel that uses covariance matrices as input. 
 
 In addition, being pure PyTorch, the GREEN model can easily be integrated to [`braindecode`](https://braindecode.org/stable/index.html) routines. 
