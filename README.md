@@ -3,9 +3,9 @@
 ---
 
 ## About the architecture
-The model is a deep learning architecture designed for EEG data that combines wavelet transforms and Riemannian geometry. It is capable of learning from raw EEG data and can be applied to both classification and regression tasks. The model is composed of the following layers:
+The model is a deep learning architecture designed for EEG data that combines wavelet transforms and Riemannian geometry. The model is composed of the following layers:
 It is based on the following layers:
- - Convolution: Uses complex-valued Gabor wavelets with parameters that are learned during training. 
+ - Convolution: Uses complex-valued Gabor wavelets with parameters (frequency and standard deviation) that are learned during training. 
  - Pooling: Derives features from the wavelet-transformed signal, such as covariance matrices.
  - Shrinkage layer: applies [shrinkage](https://scikit-learn.org/1.5/modules/covariance.html#basic-shrinkage) to the covariance matrices.
  - Riemannian Layers: Applies transformations to the matrices, leveraging the geometry of the Symmetric Positive Definite (SPD) manifold.
@@ -41,14 +41,14 @@ from green.wavelet_layers import RealCovariance
 from green.research_code.pl_utils import get_green
 
 green_model = get_green(
-	n_freqs=5,                    # Learning 5 wavelets
-	n_ch=22,                      # EEG data with 22 channels
-	sfreq=100,   			      # Sampling frequency of 100 Hz
-	dropout=0.5,		          # Dropout rate of 0.5 in FC layers
-	hidden_dim=[100],             # Use 100 units in the hidden layer
-	pool_layer=RealCovariance(),  # Compute covariance after wavelet transform
-	bi_out=[20],    		      # Use a BiMap layer outputing a 20x20 matrix
-	out_dim=1, 				      # Output dimension of 1, for regression
+	n_freqs=5,	# Learning 5 wavelets
+	n_ch=22,	# EEG data with 22 channels
+	sfreq=100,	# Sampling frequency of 100 Hz
+	dropout=0.5,	# Dropout rate of 0.5 in FC layers
+	hidden_dim=[100],	# Use 100 units in the hidden layer
+	pool_layer=RealCovariance(),	# Compute covariance after wavelet transform
+	bi_out=[20],	# Use a BiMap layer outputing a 20x20 matrix
+	out_dim=1,	# Output dimension of 1, for regression
 )
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -58,7 +58,7 @@ clf = EEGRegressor(
 	criterion=torch.nn.CrossEntropyLoss,
 	optimizer=torch.optim.AdamW,
 	device=device,
-	callbacks=[],                  # Callbacks can be added here, e.g. EarlyStopping
+	callbacks=[],	# Callbacks can be added here, e.g. EarlyStopping
 )
 ```
 
