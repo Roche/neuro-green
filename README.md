@@ -1,5 +1,6 @@
 # GREEN architecture (Gabor Riemann EEGNet)
 ![CI](https://github.com/Roche/neuro-green/actions/workflows/lint_and_test.yaml/badge.svg)
+[![DOI](https://zenodo.org/badge/795238657.svg)](https://doi.org/10.5281/zenodo.14597453)
 ---
 
 ## About the architecture
