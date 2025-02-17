@@ -4,8 +4,10 @@
 ---
 
 ## About the architecture
-The model is a deep learning architecture designed for EEG data that combines wavelet transforms and Riemannian geometry. The model is composed of the following layers:
-It is based on the following layers:
+
+GREEN is a deep learning architecture designed for EEG data that combines wavelet transforms and Riemannian geometry.
+
+The model (see our [paper](https://doi.org/10.1016/j.patter.2025.101182) for details) is composed of the following layers:
 
  - Convolution: Uses complex-valued Gabor wavelets with parameters that are learned during training. 
 
@@ -19,6 +21,7 @@ It is based on the following layers:
 
 ![alt text](assets/concept_figure.png)
 
+To dive into the background, check out our [paper](https://doi.org/10.1016/j.patter.2025.101182) published in Patterns (Cell Press).
 
 ## Getting started
 Clone the repository and install locally.
@@ -77,13 +80,15 @@ clf = EEGRegressor(
 When using our code, please cite the reference article:
 
 ``` bibtex
-@article {paillard_2024_green,
-	author = {Paillard, Joseph and Hipp, Joerg F and Engemann, Denis A},
-	title = {GREEN: a lightweight architecture using learnable wavelets and Riemannian geometry for biomarker exploration},
-	year = {2024},
-	doi = {10.1101/2024.05.14.594142},
-	URL = {https://www.biorxiv.org/content/early/2024/05/14/2024.05.14.594142},
-	journal = {bioRxiv}
+
+@article{paillard2025,
+    author = {Paillard, Joseph and Hipp, J{\"o}rg F. and Engemann, Denis A.},
+    title = {GREEN: A lightweight architecture using learnable wavelets and Riemannian geometry for biomarker exploration with EEG signals},
+    doi = {10.1016/j.patter.2025.101182},
+    url = {https://doi.org/10.1016/j.patter.2025.101182},
+    journal = {Patterns},
+    publisher = {Elsevier},
+    isbn = {2666-3899}
 }
 ```
 
